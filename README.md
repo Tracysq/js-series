@@ -18,3 +18,8 @@
 - deepClone(source)
 ### Environment
 在 node 下运行
+## promise
+### Use
+- new Promise((resolve, reject) => {...})
+### Environment
+在 ts-node 下运行
