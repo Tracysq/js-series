@@ -2,40 +2,30 @@ class Promise2 {
   callbacks = []
   state = 'pending'
 
-  resolve = (result) => {
+  private resolveOrReject(state, data, i){
     nextTick(() => {
       // console.log('-------')
       if(this.state !== 'pending') return
-      this.state = 'fulfilled'
+      this.state = state
       this.callbacks.forEach(handle => {
-        if(typeof handle[0] === 'function'){
+        if(typeof handle[i] === 'function'){
           let x
           try {
-            x = handle[0].call(undefined, result)  
+            x = handle[i].call(undefined, data)  
           } catch (e) {
             return handle[2].reject(e)
           }
           handle[2].resolveWith(x)
         }
       })
-    })
+    }) 
+  }
+
+  resolve = (result) => {
+    this.resolveOrReject('fulfilled', result, 0)
   }
   reject = (reson) => {
-    nextTick(() => {
-      if(this.state !== 'pending') return
-      this.state = 'rejected'
-      this.callbacks.forEach(handle => {
-        if(typeof handle[1] === 'function'){
-          let x
-          try {
-            x = handle[1].call(undefined, reson)  
-          } catch (e) {
-            return handle[2].reject(e)
-          }
-          handle[2].resolveWith(x)
-        }
-      })
-    })
+    this.resolveOrReject('rejected', reson, 1)
   }
   constructor(fn){
     if(typeof fn !== 'function'){
@@ -57,38 +47,54 @@ class Promise2 {
     this.callbacks.push(handle)
     return handle[2]
   }
-  resolveWith(x){
-    if(this === x){// x 和 promise2 如果是同一个引用
-      return this.reject(new TypeError())
-    }else if(x instanceof Promise2){// x 如果是个 Promise 类型实例
-      x.then(result  => {
-        this.resolve(result)
-      }, reson => {
-        this.reject(reson)
-      })
-    }else if(x instanceof Object){// x 如果是个 对象 或 函数
-      let then
-      try{
-        then = x.then 
-      }catch(e){
-        this.reject(e)
-      }
+  resolveWithSelf(){
+    return this.reject(new TypeError())
+  }
+  resolveWithPromise(x){
+    x.then(result  => {
+      this.resolve(result)
+    }, reson => {
+      this.reject(reson)
+    })
+  }
+  private getThen(x){
+    let then 
+    try{
+      then = x.then 
+    }catch(e){
+      return this.reject(e)
+    }
+    return then
+  }
+  resolveWidthThenable(x){
+    try{
+      x.then(
+        y => {
+          this.resolveWith(y)
+        },
+        r => {
+          this.reject(r)
+        }
+      )
+    }catch(e){
+      this.reject(e)
+    }
+  }
+  resolveWithObject(x){
+    let then = this.getThen(x)
       if(then instanceof Function){
-        try{
-          x.then(
-            y => {
-              this.resolveWith(y)
-            },
-            r => {
-              this.reject(r)
-            }
-          )
-        }catch(e){
-          this.reject(e)
-        }   
+        this.resolveWidthThenable(x)
       }else {
         this.resolve(x)
       }
+  }
+  resolveWith(x){
+    if(this === x){// x 和 promise2 如果是同一个引用
+      this.resolveWithSelf()
+    }else if(x instanceof Promise2){// x 如果是个 Promise 类型实例
+      this.resolveWithPromise(x)
+    }else if(x instanceof Object){// x 如果是个 对象 或 函数
+      this.resolveWithObject(x)
     }else {
       // x 不是对象
       this.resolve(x)
