@@ -212,4 +212,40 @@ describe('Promise', () => {
       done()
     }, 0);
   })
+  
+  // @ts-ignore
+  it('then 必须返回一个 promise', () => {
+    const promise = new Promise((resolve, reject) => {
+      resolve()
+    })
+    const promise2 = promise.then(() => {}, () => {})
+    // @ts-ignore
+    assert(promise2 instanceof Promise)
+  })
+  // @ts-ignore
+  it('如果 then(success, fail) 中的 success 返回一个值 x，运行 [[Resolve]](promise2, x)', (done) => {
+    const promise = new Promise((resolve, reject) => {
+      resolve()
+    })
+    promise
+      .then(() => '成功', () => {})
+      .then(result => {
+        assert.equal(result, '成功')
+        done()
+      })
+  })
+  // @ts-ignore
+  it('x 是一个 Promise 实例', (done) => {
+    const promise = new Promise((resolve, reject) => {
+      resolve()
+    })
+    const fn = sinon.fake()
+    promise
+      .then(() => new Promise(resolve => resolve()))
+      .then(fn)
+    setTimeout(() => {
+      assert(fn.called)
+      done()
+    }, 6);
+  })
 })
