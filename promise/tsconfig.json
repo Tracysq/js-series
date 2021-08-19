@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
-    "noImplicitAny": false // 没有隐式的 any，不写类型就报错
+    "noImplicitAny": false, // 没有隐式的 any，不写类型就报错,
+    "types": ["node", "mocha"]
   }
 }

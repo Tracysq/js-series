@@ -3,29 +3,39 @@ class Promise2 {
   state = 'pending'
 
   resolve = (result) => {
-    setTimeout(() => {
+    process.nextTick(() => {
       // console.log('-------')
       if(this.state !== 'pending') return
       this.state = 'fulfilled'
       this.callbacks.forEach(handle => {
         if(typeof handle[0] === 'function'){
-          const x = handle[0].call(undefined, result)
+          let x
+          try {
+            x = handle[0].call(undefined, result)  
+          } catch (e) {
+            return handle[2].reject(e)
+          }
           handle[2].resolveWith(x)
         }
       })
-    }, 0)
+    })
   }
   reject = (reson) => {
-    setTimeout(() => {
+    process.nextTick(() => {
       if(this.state !== 'pending') return
       this.state = 'rejected'
       this.callbacks.forEach(handle => {
         if(typeof handle[1] === 'function'){
-          const x = handle[1].call(undefined, reson)
+          let x
+          try {
+            x = handle[1].call(undefined, reson)  
+          } catch (e) {
+            return handle[2].reject(e)
+          }
           handle[2].resolveWith(x)
         }
       })
-    }, 0);
+    })
   }
   constructor(fn){
     if(typeof fn !== 'function'){

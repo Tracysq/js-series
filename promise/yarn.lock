@@ -72,6 +72,11 @@
   resolved "https://registry.nlark.com/@types/mocha/download/@types/mocha-9.0.0.tgz#3205bcd15ada9bc681ac20bef64e9e6df88fd297"
   integrity sha1-MgW80Vram8aBrCC+9k6ebfiP0pc=
 
+"@types/node@^16.6.2":
+  version "16.6.2"
+  resolved "https://registry.nlark.com/@types/node/download/@types/node-16.6.2.tgz#331b7b9f8621c638284787c5559423822fdffc50"
+  integrity sha1-Mxt7n4YhxjgoR4fFVZQjgi/f/FA=
+
 "@types/sinon-chai@^3.2.5":
   version "3.2.5"
   resolved "https://registry.nlark.com/@types/sinon-chai/download/@types/sinon-chai-3.2.5.tgz#df21ae57b10757da0b26f512145c065f2ad45c48"

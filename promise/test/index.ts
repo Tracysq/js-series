@@ -235,7 +235,7 @@ describe('Promise', () => {
       })
   })
   // @ts-ignore
-  it('x 是一个 Promise 实例', (done) => {
+  it('success 的返回值是一个 Promise 实例', (done) => {
     const promise = new Promise((resolve, reject) => {
       resolve()
     })
@@ -246,6 +246,82 @@ describe('Promise', () => {
     setTimeout(() => {
       assert(fn.called)
       done()
-    }, 6);
+    });
+  })
+  // @ts-ignore
+  it('success 的返回值是一个 Promise 实例，且失败了', (done) => {
+    const promise = new Promise((resolve, reject) => {
+      resolve()
+    })
+    const fn = sinon.fake()
+    promise
+      .then(() => new Promise((resolve, reject) => reject()))
+      .then(null, fn)
+    setTimeout(() => {
+      assert(fn.called)
+      done()
+    });
+  })
+  // @ts-ignore
+  it('fail 的返回值是一个 Promise 实例', (done) => {
+    const promise = new Promise((resolve, reject) => {
+      reject()
+    })
+    const fn = sinon.fake()
+    promise
+      .then(null, () => new Promise(resolve => resolve()))
+      .then(fn, null)
+    setTimeout(() => {
+      assert(fn.called)
+      done()
+    }); 
+  })
+  // @ts-ignore
+  it('fail 的返回值是一个 Promise 实例，且失败了', (done) => {
+    const promise = new Promise((resolve, reject) => {
+      reject()
+    })
+    const fn = sinon.fake()
+    promise
+      .then(null, () => new Promise((resolve, reject) => reject()))
+      .then(null, fn)
+    setTimeout(() => {
+      assert(fn.called)
+      done()
+    }); 
+  })
+  // @ts-ignore
+  it('如果 success 抛出一个异常 e，promise2 必须被拒绝', (done) => {
+    const promise = new Promise((resolve, reject) => {
+      resolve()
+    })
+    const fn = sinon.fake()
+    const error = new Error()
+    const promise2 = promise.then(() => { 
+      throw error
+    })
+    promise2.then(null, fn)
+    setTimeout(() => {
+      assert(fn.called)
+      assert(fn.calledWith(error))
+      done()
+    }); 
+  })
+  // @ts-ignore
+  it('如果 fail 抛出一个异常 e，promise2 必须被拒绝', (done) => {
+    const promise = new Promise((resolve, reject) => {
+      reject()
+    })
+    const fn = sinon.fake()
+    const error = new Error()
+    const promise2 = promise.then(null, () => { 
+      throw error
+    })
+    promise2.then(null, fn)
+    setTimeout(() => {
+      assert(fn.called)
+      assert(fn.calledWith(error))
+      done()
+    }); 
   })
 })
